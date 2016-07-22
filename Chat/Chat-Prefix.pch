@@ -1,0 +1,25 @@
+//
+//  Char.pch
+//  Chat
+//
+//  Created by 魏唯隆 on 16/7/20.
+//  Copyright © 2016年 魏唯隆. All rights reserved.
+//
+
+#ifndef Char_pch
+#define Char_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#ifdef __OBJC__
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+
+#import "UIViewController+HUD.h"
+
+#import "common.h"
+#endif
+
+
+#endif /* Char_pch */
