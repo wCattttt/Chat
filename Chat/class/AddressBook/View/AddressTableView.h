@@ -1,0 +1,15 @@
+//
+//  AddressTableView.h
+//  Chat
+//
+//  Created by 魏唯隆 on 16/7/26.
+//  Copyright © 2016年 魏唯隆. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface AddressTableView : UITableView
+
+@property (nonatomic, retain) NSMutableArray *userData;
+
+@end

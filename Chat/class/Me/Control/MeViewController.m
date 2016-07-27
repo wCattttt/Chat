@@ -7,8 +7,9 @@
 //
 
 #import "MeViewController.h"
+#import "SetViewController.h"
 
-@interface MeViewController ()
+@interface MeViewController ()<UINavigationControllerDelegate, UIImagePickerControllerDelegate>
 
 @end
 
@@ -17,6 +18,70 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title = @"我";
+    
+    [self _initView];
+    
+}
+
+- (void)_initView{
+    self.tableView.contentInset = UIEdgeInsetsMake(-20, 0, 0, 0);
+
+    _usernameLabel.text = [[NSUserDefaults standardUserDefaults] objectForKey:KUserName];
+    _userImgView.layer.masksToBounds = YES;
+    _userImgView.layer.cornerRadius = 8;
+}
+
+#pragma mark UItableView DataSource/Delegate
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    switch (indexPath.section) {
+        case 0:
+            // 个人信息
+            break;
+        case 1:
+        {
+            switch (indexPath.row) {
+                case 0:
+                    // 相册
+                {
+                    UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+                    picker.delegate = self;
+                    picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+                    [self presentViewController:picker animated:YES completion:nil];
+                }
+                    break;
+                case 1:
+                    // 收藏
+                    break;
+                case 2:
+                    // 钱包
+                    break;
+                case 3:
+                    // 卡包
+                    break;
+                    
+            }
+        }
+            break;
+        case 2:
+            // 表情
+            break;
+        case 3:
+            // 设置
+        {
+            SetViewController *setVC = [[SetViewController alloc] init];
+            setVC.hidesBottomBarWhenPushed = YES;
+            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+            [self.navigationController pushViewController:setVC animated:YES];
+        }
+            break;
+    }
+}
+
+#pragma mark UIImagePickerController 协议方法
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info{
+    UIImage *img = info[UIImagePickerControllerOriginalImage];
+    _userImgView.image = img;
+    [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)didReceiveMemoryWarning {

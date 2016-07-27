@@ -8,9 +8,14 @@
 
 #import "AppDelegate.h"
 #import "EMSDK.h"
+#import "EaseUI.h"
 
 #import "LoginViewController.h"
 #import "MainViewController.h"
+
+
+#define appKey @"wwl#char"
+#define certName @"istore_dev"
 
 @interface AppDelegate ()
 
@@ -20,23 +25,60 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    //AppKey:注册的AppKey，详细见下面注释。
+    //apnsCertName:推送证书名（不需要加后缀），详细见下面注释。
+    EMOptions *options = [EMOptions optionsWithAppkey:appKey];
+    options.apnsCertName = certName;
+    [[EMClient sharedClient] initializeSDKWithOptions:options];
+    
+    // 初始化EaseUI
+    [[EaseSDKHelper shareHelper] hyphenateApplication:application
+                      didFinishLaunchingWithOptions:launchOptions
+                                             appkey:appKey
+                                       apnsCertName:certName
+                                        otherConfig:@{kSDKConfigEnableConsoleLogger:[NSNumber numberWithBool:YES]}];
+    
     
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     if([[NSUserDefaults standardUserDefaults] objectForKey:KUserState]){
-        MainViewController *mainVC = [];
-        self.window.rootViewController = [MainViewController];
+        [self autoLogin];
+        
+    }else{
+        LoginViewController *loginVC = [[UIStoryboard storyboardWithName:@"Login" bundle:nil] instantiateViewControllerWithIdentifier:@"LoginViewController"];
+        self.window.rootViewController = loginVC;
     }
     
     
-    //AppKey:注册的AppKey，详细见下面注释。
-    //apnsCertName:推送证书名（不需要加后缀），详细见下面注释。
-    EMOptions *options = [EMOptions optionsWithAppkey:@"wwl#char"];
-    options.apnsCertName = @"istore_dev";
-    [[EMClient sharedClient] initializeSDKWithOptions:options];
-    
     return YES;
+}
+
+- (void)autoLogin{
+    // 环信自动登录
+    BOOL isAutoLogin = [EMClient sharedClient].options.isAutoLogin;
+    if (!isAutoLogin) {
+        NSString *userName = [[NSUserDefaults standardUserDefaults] objectForKey:KUserName];
+        NSString *password = [[NSUserDefaults standardUserDefaults] objectForKey:KPassword];
+        EMError *error = [[EMClient sharedClient] loginWithUsername:userName password:password];
+        if (!error)
+        {
+            [[EMClient sharedClient].options setIsAutoLogin:YES];
+            MainViewController *mainVC = [[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"MainViewController"];
+            self.window.rootViewController = mainVC;
+        }else{
+            LoginViewController *loginVC = [[UIStoryboard storyboardWithName:@"Login" bundle:nil] instantiateViewControllerWithIdentifier:@"LoginViewController"];
+            self.window.rootViewController = loginVC;
+            
+            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提示" message:error.errorDescription preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *determineAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+            [alertController addAction:determineAction];
+            [self.window.rootViewController presentViewController:alertController animated:YES completion:nil];
+        }
+    }else{
+        MainViewController *mainVC = [[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"MainViewController"];
+        self.window.rootViewController = mainVC;
+    }
 }
 
 
@@ -53,6 +95,7 @@
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     [[EMClient sharedClient] applicationWillEnterForeground:application];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"setupUnreadMessageCount" object:nil];
 }
 
 

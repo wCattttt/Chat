@@ -7,6 +7,7 @@
 //
 
 #import "RegistViewController.h"
+#import "EMSDK.h"
 
 @interface RegistViewController ()
 {
@@ -24,8 +25,23 @@
     // Do any additional setup after loading the view.
 }
 - (IBAction)back:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 - (IBAction)regist:(id)sender {
+    [self.view endEditing:YES];
+    if(_userNameTF.text.length > 0 && _passwordTF.text.length > 0 && _rePasswordTF.text.length > 0 &&   [_passwordTF.text isEqualToString:_rePasswordTF.text]){
+        [self showHudInView:self.view hint:@"正在注册..."];
+        EMError *error = [[EMClient sharedClient] registerWithUsername:_userNameTF.text password:_passwordTF.text];
+        [self hideHud];
+        if (error==nil) {
+            [self showHint:@"注册成功"];
+            [self dismissViewControllerAnimated:YES completion:nil];
+        }else{
+            [self showHint:@"注册失败"];
+        }
+    }else{
+        [self showHint:@"两次密码不一致"];
+    }
 }
 
 - (void)didReceiveMemoryWarning {

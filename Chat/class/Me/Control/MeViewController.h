@@ -8,6 +8,10 @@
 
 #import "BaseViewController.h"
 
-@interface MeViewController : BaseViewController
+@interface MeViewController : UITableViewController
+{
+    __weak IBOutlet UIImageView *_userImgView;
+    __weak IBOutlet UILabel *_usernameLabel;
 
+}
 @end
