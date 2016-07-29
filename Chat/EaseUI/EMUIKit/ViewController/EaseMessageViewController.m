@@ -170,7 +170,7 @@
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
-    [[EMCDDeviceManager sharedInstance] stopPlaying];
+//    [[EMCDDeviceManager sharedInstance] stopPlaying];
     [EMCDDeviceManager sharedInstance].delegate = nil;
     
     if (_imagePicker){

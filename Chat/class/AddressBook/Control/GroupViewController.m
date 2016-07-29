@@ -7,16 +7,37 @@
 //
 
 #import "GroupViewController.h"
+#import "GroupTableView.h"
+#import "EMSDK.h"
 
 @interface GroupViewController ()
-
+{
+    GroupTableView *_tableView;
+}
 @end
 
 @implementation GroupViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    self.title = @"群聊";
+    
+    [self _createTableView];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshTableView) name:@"CreateGroupComplete" object:nil];
+}
+
+- (void)_createTableView{
+    NSArray *rooms = [[EMClient sharedClient].groupManager getAllGroups];
+    
+    _tableView = [[GroupTableView alloc] initWithFrame:self.view.frame style:UITableViewStyleGrouped];
+    _tableView.groupData = rooms;
+    [self.view addSubview:_tableView];
+}
+
+- (void)refreshTableView{
+    NSArray *rooms = [[EMClient sharedClient].groupManager getAllGroups];
+    _tableView.groupData = rooms;
+    [_tableView reloadData];
 }
 
 - (void)didReceiveMemoryWarning {

@@ -10,12 +10,14 @@
 #import "EMSDK.h"
 #import "EaseUI.h"
 
+#import <CoreTelephony/CTCellularData.h>
+#import <AVFoundation/AVFoundation.h>
+
 #import "LoginViewController.h"
 #import "MainViewController.h"
 
-
 #define appKey @"wwl#char"
-#define certName @"istore_dev"
+#define certName @"chat"
 
 @interface AppDelegate ()
 
@@ -25,11 +27,46 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+    CTCellularData *cellularData = [[CTCellularData alloc]init];
+    cellularData.cellularDataRestrictionDidUpdateNotifier =  ^(CTCellularDataRestrictedState state){
+        //获取联网状态
+        switch (state) {
+            case kCTCellularDataRestricted:
+                NSLog(@"有联网权限");
+                break;
+            case kCTCellularDataNotRestricted:
+                NSLog(@"没有联网权限!");
+                break;
+            case kCTCellularDataRestrictedStateUnknown:
+                NSLog(@"Unknown");
+                break;
+            default:
+                break;
+        };
+    };
+    
     //AppKey:注册的AppKey，详细见下面注释。
     //apnsCertName:推送证书名（不需要加后缀），详细见下面注释。
     EMOptions *options = [EMOptions optionsWithAppkey:appKey];
     options.apnsCertName = certName;
     [[EMClient sharedClient] initializeSDKWithOptions:options];
+    
+    //iOS8 注册APNS
+    if ([application respondsToSelector:@selector(registerForRemoteNotifications)]) {
+        [application registerForRemoteNotifications];
+        UIUserNotificationType notificationTypes = UIUserNotificationTypeBadge |
+        UIUserNotificationTypeSound |
+        UIUserNotificationTypeAlert;
+        UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:notificationTypes categories:nil];
+        [application registerUserNotificationSettings:settings];
+    }
+    else{
+        UIRemoteNotificationType notificationTypes = UIRemoteNotificationTypeBadge |
+        UIRemoteNotificationTypeSound |
+        UIRemoteNotificationTypeAlert;
+        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:notificationTypes];
+    }
     
     // 初始化EaseUI
     [[EaseSDKHelper shareHelper] hyphenateApplication:application
@@ -38,13 +75,12 @@
                                        apnsCertName:certName
                                         otherConfig:@{kSDKConfigEnableConsoleLogger:[NSNumber numberWithBool:YES]}];
     
-    
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     if([[NSUserDefaults standardUserDefaults] objectForKey:KUserState]){
         [self autoLogin];
-        
+//        [[EMClient sharedClient] setApnsNickname:@"推送昵称"];
     }else{
         LoginViewController *loginVC = [[UIStoryboard storyboardWithName:@"Login" bundle:nil] instantiateViewControllerWithIdentifier:@"LoginViewController"];
         self.window.rootViewController = loginVC;
@@ -52,6 +88,16 @@
     
     
     return YES;
+}
+
+// 将得到的deviceToken传给SDK
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken{
+    [[EMClient sharedClient] bindDeviceToken:deviceToken];
+}
+
+// 注册deviceToken失败
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error{
+    NSLog(@"error -- %@",error);
 }
 
 - (void)autoLogin{
@@ -81,7 +127,6 @@
     }
 }
 
-
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
@@ -109,7 +154,6 @@
     // Saves changes in the application's managed object context before the application terminates.
     [self saveContext];
 }
-
 
 #pragma mark - Core Data stack
 

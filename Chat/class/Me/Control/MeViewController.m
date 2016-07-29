@@ -80,9 +80,12 @@
 #pragma mark UIImagePickerController 协议方法
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info{
     UIImage *img = info[UIImagePickerControllerOriginalImage];
-    _userImgView.image = img;
+//    _userImgView.image = img;
+    self.tableView.backgroundView = [[UIImageView alloc] initWithImage:[self imageByScalingAndCroppingForSize:self.tableView.frame.size withSourceImage:img]];
     [picker dismissViewControllerAnimated:YES completion:nil];
 }
+
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

@@ -17,5 +17,6 @@
 #define KScreenHeight [UIScreen mainScreen].bounds.size.height
 
 #import "UIView+VCResponse.h"
+#import "NSObject+CroppingImage.h"
 
 #endif /* common_h */

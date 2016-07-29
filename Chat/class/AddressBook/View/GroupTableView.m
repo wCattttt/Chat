@@ -1,23 +1,22 @@
 //
-//  AddressTableView.m
+//  GroupTableView.m
 //  Chat
 //
-//  Created by 魏唯隆 on 16/7/26.
+//  Created by 魏唯隆 on 16/7/28.
 //  Copyright © 2016年 魏唯隆. All rights reserved.
 //
 
-#import "AddressTableView.h"
+#import "GroupTableView.h"
 #import "EMSDK.h"
 #import "EaseUI.h"
-#import "GroupViewController.h"
+#import "CreateGroupViewController.h"
 
-@interface AddressTableView()<UITableViewDataSource, UITableViewDelegate>
+@interface GroupTableView()<UITableViewDataSource, UITableViewDelegate>
 {
     NSString *_identify;
 }
 @end
-
-@implementation AddressTableView
+@implementation GroupTableView
 
 - (instancetype)initWithFrame:(CGRect)frame style:(UITableViewStyle)style{
     self = [super initWithFrame:frame style:style];
@@ -31,7 +30,7 @@
     self.dataSource = self;
     self.delegate = self;
     
-    _identify = @"AddressTableView";
+    _identify = @"GroupTableView";
     [self registerClass:[UITableViewCell class] forCellReuseIdentifier:_identify];
 }
 
@@ -45,7 +44,7 @@
             return 1;
             break;
         case 1:
-            return _userData.count;
+            return _groupData.count;
             break;
     }
     return 0;
@@ -63,29 +62,29 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:_identify];
     if(indexPath.section == 0 && indexPath.row == 0){
         cell.imageView.image = [UIImage imageNamed:@"group"];
-        cell.textLabel.text = @"群聊";
+        cell.textLabel.text = @"新建群组";
     }else{
-        id<IUserModel> model = nil;
-        model = [[EaseUserModel alloc] initWithBuddy:_userData[indexPath.row]];
-        cell.imageView.image = [UIImage imageNamed:@"user"];
-        cell.textLabel.text = model.buddy;
+        EMGroup *group = _groupData[indexPath.row];
+        cell.imageView.image = [UIImage imageNamed:@"group"];
+        cell.textLabel.text = group.subject;
     }
     return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     if(indexPath.section == 0){
-        // 群聊
-        GroupViewController *groupVC = [[GroupViewController alloc] init];
-        groupVC.hidesBottomBarWhenPushed = YES;
-        [[self viewController].navigationController pushViewController:groupVC animated:YES];
+        CreateGroupViewController *createVC = [[CreateGroupViewController alloc] init];
+        [[self viewController].navigationController pushViewController:createVC animated:YES];
     }else{
-        // 单聊 聊天
-        EaseMessageViewController *chatController = [[EaseMessageViewController alloc] initWithConversationChatter:_userData[indexPath.row] conversationType:EMConversationTypeChat];
-        chatController.hidesBottomBarWhenPushed = YES;
+        // 聊天
+        EMGroup *group = _groupData[indexPath.row];
+        EaseMessageViewController *chatController = [[EaseMessageViewController alloc] initWithConversationChatter:group.groupId conversationType:EMConversationTypeGroupChat];
         [[self viewController].navigationController pushViewController:chatController animated:YES];
     }
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
 }
+
+
+
 
 @end

@@ -11,13 +11,14 @@
 #import "EaseUI.h"
 #import "ChatTableView.h"
 
-@interface WeiChatViewController ()<EaseConversationListViewControllerDelegate, EaseConversationListViewControllerDataSource, EMChatManagerDelegate>
+@interface WeiChatViewController ()<EaseConversationListViewControllerDelegate, EaseConversationListViewControllerDataSource, EMChatManagerDelegate, AVAudioPlayerDelegate>
 {
     ChatTableView *_tableView;
     AVAudioPlayer *_player;
     
     UIButton *_rightBt;
     int _num;
+    NSTimer *_timer;
 }
 @end
 
@@ -51,7 +52,7 @@
     [_rightBt addTarget:self action:@selector(rightAction) forControlEvents:UIControlEventTouchUpInside];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:_rightBt];
     
-    [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(timeAction) userInfo:nil repeats:YES];
+    _timer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(timeAction) userInfo:nil repeats:YES];
 }
 
 - (void)timeAction{
@@ -67,6 +68,14 @@
 
 - (void)rightAction{
     
+    _rightBt.selected = !_rightBt.selected;
+    if(_rightBt.selected){
+        [_timer invalidate];
+        [_player stop];
+    }else{
+        _timer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(timeAction) userInfo:nil repeats:YES];
+        [_player play];
+    }
 }
 
 - (void)_createTableView{
@@ -85,28 +94,79 @@
 
 - (void)stepPlay{
     NSError *error;
-    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
-    [audioSession setCategory:AVAudioSessionCategoryPlayback error:&error];
-    // 加载文件，准备播放
     NSString *path = [[NSBundle mainBundle] pathForResource:@"fade" ofType:@"mp3"];
     NSURL *url = [[NSURL alloc]initFileURLWithPath:path];
     _player = [[AVAudioPlayer alloc]initWithContentsOfURL:url error:nil];
+    
+    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+    [audioSession setCategory:AVAudioSessionCategoryPlayback error:&error];
+    _player.delegate = self;
+    //添加通知拔出耳机
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(routeChange:) name:AVAudioSessionRouteChangeNotification object:nil];
+    //设置锁屏
+    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error:nil];
+    [[AVAudioSession sharedInstance] setActive: YES error: nil];
+    
+    MPMediaItemArtwork *artWork = [[MPMediaItemArtwork alloc] initWithImage:[UIImage imageNamed:@"fade.jpg"]];
+    
+    NSDictionary *dic = @{MPMediaItemPropertyTitle:@"Fade",
+                          MPMediaItemPropertyArtist:@"我也不知道是谁😂",
+                          MPMediaItemPropertyArtwork:artWork
+                          };
+    [[MPNowPlayingInfoCenter defaultCenter] setNowPlayingInfo:dic];
+    
+    _player.numberOfLoops = -1; //  单曲循环
     [_player prepareToPlay];
+//    [_player play];
+}
+
+-(void)routeChange:(NSNotification *)notification{
+    NSDictionary *dic=notification.userInfo;
+    int changeReason= [dic[AVAudioSessionRouteChangeReasonKey] intValue];
+    if (changeReason==AVAudioSessionRouteChangeReasonOldDeviceUnavailable) {
+        AVAudioSessionRouteDescription *routeDescription=dic[AVAudioSessionRouteChangePreviousRouteKey];
+        AVAudioSessionPortDescription *portDescription= [routeDescription.outputs firstObject];
+        //原设备为耳机则暂停
+        if ([portDescription.portType isEqualToString:@"Headphones"]) {
+            [_player pause];
+            [_timer invalidate];
+        }
+    }
+}
+#pragma mark - 接收方法的设置
+- (void)remoteControlReceivedWithEvent:(UIEvent *)event {
+    if (event.type == UIEventTypeRemoteControl) {  //判断是否为远程控制
+        switch (event.subtype) {
+            case  UIEventSubtypeRemoteControlPlay:
+                if (![_player isPlaying]) {
+                    [_player play];
+                }
+                break;
+            case UIEventSubtypeRemoteControlPause:
+                if ([_player isPlaying]) {
+                    [_player pause];
+                }
+                break;
+            case UIEventSubtypeRemoteControlNextTrack:
+                NSLog(@"下一首");
+                break;
+            case UIEventSubtypeRemoteControlPreviousTrack:
+                NSLog(@"上一首 ");
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     _tableView.chatData = [self getConversations];
     [_tableView reloadData];
-    
-    [_player play];
+    // 注册响应后台控制
+    [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
 }
 
-- (void)viewDidDisappear:(BOOL)animated{
-    [super viewDidDisappear:animated];
-    
-    [_player stop];
-}
 
 - (void)refreshData{
     _tableView.chatData = [self getConversations];
@@ -158,11 +218,17 @@
  */
 - (void)didReceiveMessages:(NSArray *)aMessages{
     
-    
     _tableView.chatData = [self getConversations];
     [_tableView reloadData];
     
     [self setupUnreadMessageCount];
+}
+
+/*!
+ *  当前登录账号在其它设备登录时会接收到该回调
+ */
+- (void)didLoginFromOtherDevice{
+    [UIApplication sharedApplication].delegate.window.rootViewController = [[UIStoryboard storyboardWithName:@"Login" bundle:nil] instantiateViewControllerWithIdentifier:@"LoginViewController"];
 }
 
 - (void)didReceiveMemoryWarning {
