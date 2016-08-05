@@ -24,7 +24,10 @@
     //注册好友回调
     [[EMClient sharedClient].contactManager addDelegate:self delegateQueue:nil];
     
-    
+    EMError *error = nil;
+    EMPushOptions *options = [[EMClient sharedClient] getPushOptionsFromServerWithError:&error];
+    [[EMClient sharedClient] setApnsNickname:@"昵称"];
+    NSArray *ignoredGroupIds = [[EMClient sharedClient].groupManager getAllIgnoredGroupIds];
 }
 
 - (void)_initVC{

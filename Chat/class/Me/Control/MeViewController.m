@@ -5,7 +5,7 @@
 //  Created by 魏唯隆 on 16/7/20.
 //  Copyright © 2016年 魏唯隆. All rights reserved.
 //
-
+#define TCOLOR(r, g, b, a) [UIColor colorWithRed:r/255.0f green:g/255.0f blue:b/255.0f alpha:a]
 #import "MeViewController.h"
 #import "SetViewController.h"
 
@@ -14,6 +14,15 @@
 @end
 
 @implementation MeViewController
+
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    
+    self.navigationController.navigationBar.barTintColor = TCOLOR(14, 13, 19, 1);
+    
+    NSDictionary * attriBute = @{NSForegroundColorAttributeName:[UIColor whiteColor],NSFontAttributeName:[UIFont systemFontOfSize:20]};
+    [self.navigationController.navigationBar setTitleTextAttributes:attriBute];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];

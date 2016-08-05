@@ -17,7 +17,11 @@
 #import "MainViewController.h"
 
 #define appKey @"wwl#char"
-#define certName @"chat"
+#define certName @"chat_dev"
+
+//#define appKey @"timeson#sandbox"
+//#define certName @"sanlipush"
+
 
 @interface AppDelegate ()
 
@@ -92,6 +96,10 @@
 
 // 将得到的deviceToken传给SDK
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken{
+    [[EMClient sharedClient] bindDeviceToken:deviceToken];
+    NSLog(@"%@",[[[[deviceToken description] stringByReplacingOccurrencesOfString: @"<" withString: @""]
+                  stringByReplacingOccurrencesOfString: @">" withString: @""]
+                 stringByReplacingOccurrencesOfString: @" " withString: @""]);
     [[EMClient sharedClient] bindDeviceToken:deviceToken];
 }
 

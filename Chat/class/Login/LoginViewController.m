@@ -41,7 +41,7 @@
         MainViewController *mainVC = [[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"MainViewController"];
         UIApplication.sharedApplication.delegate.window.rootViewController = mainVC;
     }else{
-        [self showHint:@"登录失败"];
+        [self showHint:error.errorDescription];
     }
 }
 

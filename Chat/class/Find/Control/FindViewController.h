@@ -8,6 +8,6 @@
 
 #import "BaseViewController.h"
 
-@interface FindViewController : BaseViewController
+@interface FindViewController : UITableViewController
 
 @end
