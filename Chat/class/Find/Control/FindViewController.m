@@ -9,6 +9,8 @@
 #import "FindViewController.h"
 
 #import "GameViewController.h"
+#import "SweepViewController.h"
+#import "RockViewController.h"
 
 @interface FindViewController ()<UITableViewDataSource, UITableViewDelegate>
 {
@@ -49,6 +51,19 @@
         }
             break;
             
+        case 1:
+        {
+            if(indexPath.row == 0){
+                SweepViewController *sweepVC = [[SweepViewController alloc] init];
+                sweepVC.hidesBottomBarWhenPushed = YES;
+                [self.navigationController pushViewController:sweepVC animated:YES];
+            }if(indexPath.row == 1){
+                RockViewController *rockVC = [[RockViewController alloc] init];
+                rockVC.hidesBottomBarWhenPushed = YES;
+                [self.navigationController pushViewController:rockVC animated:YES];
+            }
+        }
+            break;
     }
 }
 
