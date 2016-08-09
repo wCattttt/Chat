@@ -132,8 +132,11 @@
     [timer invalidate];
     NSLog(@"%@",stringValue);
     
+    [self showHint:stringValue];
+    
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:stringValue]];
     [self.navigationController popViewControllerAnimated:NO];
+    
 }
 
 -(void)animation1

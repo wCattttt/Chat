@@ -84,7 +84,23 @@
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
 }
 
-
-
+- (nullable NSArray<UITableViewRowAction *> *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath{
+    UITableViewRowAction *outGroupAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDefault title:@"退出群组" handler:^(UITableViewRowAction * _Nonnull action, NSIndexPath * _Nonnull indexPath) {
+        
+        EMError *error = nil;
+        EMGroup *group = _groupData[indexPath.row];
+        [[EMClient sharedClient].groupManager leaveGroup:group.groupId error:&error];
+        if(!error){
+            [[self viewController] showHint:@"退出成功"];
+            [_groupData removeObjectAtIndex:indexPath.row];
+            [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+            
+        }else{
+            [[self viewController] showHint:error.errorDescription];
+        }
+    }];
+    
+    return @[outGroupAction];
+}
 
 @end

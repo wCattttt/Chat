@@ -64,11 +64,33 @@
     NSArray *userlist = [[EMClient sharedClient].contactManager getContactsFromServerWithError:&error];
     if (!error) {
         NSLog(@"获取成功 -- %@",userlist);
+    }else{
+        [self showHint:@"检查网络"];
     }
-    
     _tableView = [[AddressTableView alloc] initWithFrame:self.view.frame style:UITableViewStyleGrouped];
     _tableView.userData = userlist;
     [self.view addSubview:_tableView];
+    
+    // 添加下拉刷新
+    UIRefreshControl *refreshControl = [[UIRefreshControl alloc] init];
+    refreshControl.tintColor = [UIColor greenColor];
+    refreshControl.attributedTitle = [[NSAttributedString alloc] initWithString:@"别催我!"];
+    [refreshControl addTarget:self action:@selector(refreshData) forControlEvents:UIControlEventValueChanged];
+    
+    _tableView.refreshControl = refreshControl;
+    
+}
+
+- (void)refreshData{
+    // 从服务器获取好友方法
+    EMError *error = nil;
+    NSArray *userlist = [[EMClient sharedClient].contactManager getContactsFromServerWithError:&error];
+    if (!error) {
+        NSLog(@"获取成功 -- %@",userlist);
+        _tableView.userData = userlist;
+        [_tableView reloadData];
+    }
+    [_tableView.refreshControl endRefreshing];
 }
 
 

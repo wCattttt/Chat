@@ -69,6 +69,7 @@
         model = [[EaseUserModel alloc] initWithBuddy:_userData[indexPath.row]];
         cell.imageView.image = [UIImage imageNamed:@"user"];
         cell.textLabel.text = model.buddy;
+
     }
     return cell;
 }
@@ -87,5 +88,36 @@
     }
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
 }
+
+//- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath{
+//    if(indexPath.section == 1){
+//        return UITableViewCellEditingStyleDelete;
+//    }
+//    return UITableViewCellEditingStyleNone;
+//}
+
+- (nullable NSArray<UITableViewRowAction *> *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath{
+    UITableViewRowAction *deleAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDestructive title:@"删除" handler:^(UITableViewRowAction * _Nonnull action, NSIndexPath * _Nonnull indexPath) {
+        //事件
+        NSLog(@"删除");
+        // 删除好友
+//        EMError *error = [[EMClient sharedClient].contactManager deleteContact:_userData[indexPath.row]];
+        EMError *error = [[EMClient sharedClient].contactManager deleteContact:@"1111111"];
+        if (!error) {
+            [[self viewController] showHint:@"删除成功"];
+            [_userData removeObjectAtIndex:indexPath.row];
+            [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationTop];
+        }
+    }];
+    
+    UITableViewRowAction *noDeleAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDefault title:@"不删除" handler:^(UITableViewRowAction * _Nonnull action, NSIndexPath * _Nonnull indexPath) {
+        //事件
+        NSLog(@"不删除");
+    }];
+    
+    noDeleAction.backgroundColor = [UIColor purpleColor];
+    return @[deleAction,noDeleAction];
+}
+
 
 @end

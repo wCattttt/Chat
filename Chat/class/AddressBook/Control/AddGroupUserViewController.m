@@ -95,6 +95,7 @@
 - (void)createGroup{
     // 新建群组
     EMError *error = nil;
+    
     [[EMClient sharedClient].groupManager asyncCreateGroupWithSubject:_createGroupModel.groupTitle description:_createGroupModel.description invitees:_selectUser message:_createGroupModel.groupMessage setting:_createGroupModel.setting success:^(EMGroup *aGroup) {
         [self showHint:[NSString stringWithFormat:@"创建群%@成功", _createGroupModel.groupTitle]];
         [self dismissViewControllerAnimated:YES completion:nil];
@@ -102,6 +103,15 @@
     } failure:^(EMError *aError) {
         
     }];
+    
+//    EMGroup *group = [[EMClient sharedClient].groupManager createGroupWithSubject:_createGroupModel.groupTitle description:_createGroupModel.description invitees:_selectUser message:_createGroupModel.groupMessage setting:_createGroupModel.setting error:&error];
+//    if(!error){
+//        [self showHint:[NSString stringWithFormat:@"创建群%@成功", _createGroupModel.groupTitle]];
+//        [self dismissViewControllerAnimated:YES completion:nil];
+//        [[NSNotificationCenter defaultCenter] postNotificationName:@"CreateGroupComplete" object:nil];
+//    }else{
+//        [self showHint:error.errorDescription];
+//    }
 }
 
 - (void)didReceiveMemoryWarning {

@@ -32,12 +32,22 @@
     _tableView = [[GroupTableView alloc] initWithFrame:self.view.frame style:UITableViewStyleGrouped];
     _tableView.groupData = rooms;
     [self.view addSubview:_tableView];
+    
+    UIRefreshControl *refreshControl = [[UIRefreshControl alloc] init];
+    refreshControl.tintColor = [UIColor blueColor];
+    refreshControl.attributedTitle = [[NSAttributedString alloc] initWithString:@"努力加载中..."];
+    [refreshControl addTarget:self action:@selector(refreshTableView) forControlEvents:UIControlEventValueChanged];
+    
+    _tableView.refreshControl = refreshControl;
+    
 }
 
 - (void)refreshTableView{
     NSArray *rooms = [[EMClient sharedClient].groupManager getAllGroups];
     _tableView.groupData = rooms;
     [_tableView reloadData];
+    
+    [_tableView.refreshControl endRefreshing];
 }
 
 - (void)didReceiveMemoryWarning {
