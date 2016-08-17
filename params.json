@@ -1,0 +1,6 @@
+{
+  "name": "Chat",
+  "tagline": "环信简单聊天",
+  "body": "# Chat\r\n仿微信(集成环信实现即时通讯)\r\n\r\n功能介绍：\r\n实现单聊、群聊\r\n用户之间 增好友、删除好友\r\n创建群组、退出群组\r\n消息推送\r\n\r\n仿微信小功能\r\n扫一扫，支持二维码/条形码扫描(结果未做处理)\r\n摇一摇\r\n\r\n还有音乐播放。。spritekit的一些小功能\r\n\r\n页面截图：\r\n ![image](https://github.com/weiweilong/Chat/raw/master/Chat/1.png)\r\n ![image](https://github.com/weiweilong/Chat/raw/master/Chat/2.png)\r\n ![image](https://github.com/weiweilong/Chat/raw/master/Chat/3.png)\r\n ![image](https://github.com/weiweilong/Chat/raw/master/Chat/4.png)\r\n\r\n运行环境：XCode 8\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
